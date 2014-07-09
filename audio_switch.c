@@ -133,7 +133,6 @@ int runAudioSwitch(int argc, const char * argv[]) {
 		fallbackDeviceID = getRequestedDeviceID(fallbackRequestedDeviceName, typeRequested);
 		setDeviceWithFallback(chosenDeviceID, fallbackDeviceID, typeRequested);
 	}
-	printf("%s audio device set to \"%s\"\n", deviceTypeName(typeRequested), requestedDeviceName);
 	return 0;
 	
 }
@@ -251,34 +250,16 @@ void setDevice(AudioDeviceID newDeviceID, ASDeviceType typeRequested) {
 			AudioHardwareSetProperty(kAudioHardwarePropertyDefaultSystemOutputDevice, propertySize, &newDeviceID);
 			break;
 	}
-	
+    printf("%s audio device set to \"%s\"\n", deviceTypeName(typeRequested), getCurrentlySelectedDeviceName(typeRequested));
 }
 
 void setDeviceWithFallback(AudioDeviceID newDeviceID, AudioDeviceID fallbackDeviceID, ASDeviceType typeRequested) {
 	UInt32 propertySize = sizeof(UInt32);
 
-	switch(typeRequested) {
-		case kAudioTypeInput:
-			if (getCurrentlySelectedDeviceID(typeRequested) == newDeviceID) {
-				AudioHardwareSetProperty(kAudioHardwarePropertyDefaultInputDevice, propertySize, &fallbackDeviceID);
-			} else {
-				AudioHardwareSetProperty(kAudioHardwarePropertyDefaultInputDevice, propertySize, &newDeviceID);
-			}
-			break;
-		case kAudioTypeOutput:
-			if (getCurrentlySelectedDeviceID(typeRequested) == newDeviceID) {
-				AudioHardwareSetProperty(kAudioHardwarePropertyDefaultOutputDevice, propertySize, &fallbackDeviceID);
-			} else {
-				AudioHardwareSetProperty(kAudioHardwarePropertyDefaultOutputDevice, propertySize, &newDeviceID);
-			}
-			break;
-		case kAudioTypeSystemOutput:
-			if (getCurrentlySelectedDeviceID(typeRequested) == newDeviceID) {
-				AudioHardwareSetProperty(kAudioHardwarePropertyDefaultSystemOutputDevice, propertySize, &fallbackDeviceID);
-			} else {
-				AudioHardwareSetProperty(kAudioHardwarePropertyDefaultSystemOutputDevice, propertySize, &newDeviceID);
-			}
-		break;
+	if (getCurrentlySelectedDeviceID(typeRequested) == newDeviceID) {
+      setDevice(fallbackDeviceID, typeRequested);
+	} else {
+	  setDevice(newDeviceID, typeRequested);
 	}
 }
 

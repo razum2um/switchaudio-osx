@@ -10,7 +10,7 @@ This is an improved import of [https://code.google.com/p/switchaudio-osx](https:
 ## Installation
 
 - Download & install [Soundflower](http://cycling74.com/products/soundflower/)
-- Copy [SwitchAudioSource](https://github.com/razum2um/switchaudio-osx/releases/download/v1.0.0/SwitchAudioSource.zip) to your `$PATH` (compiled for Mavericks)
+- Extract & copy [SwitchAudioSource](https://github.com/razum2um/switchaudio-osx/releases/download/v1.0.0/SwitchAudioSource.zip) to your `$PATH` (compiled for Mavericks)
 
 You can compile it by yourself, too (xcode command line tools needed):
 

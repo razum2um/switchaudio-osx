@@ -56,8 +56,10 @@ AudioDeviceID getCurrentlySelectedDeviceID(ASDeviceType typeRequested);
 void getDeviceName(AudioDeviceID deviceID, char * deviceName);
 ASDeviceType getDeviceType(AudioDeviceID deviceID);
 char *deviceTypeName(ASDeviceType device_type);
+char *getCurrentlySelectedDeviceName(ASDeviceType typeRequested);
 void showCurrentlySelectedDeviceID(ASDeviceType typeRequested);
 AudioDeviceID getRequestedDeviceID(char * requestedDeviceName, ASDeviceType typeRequested);
 void setDevice(AudioDeviceID newDeviceID, ASDeviceType typeRequested);
+void setDeviceWithFallback(AudioDeviceID newDeviceID, AudioDeviceID fallbackDeviceID, ASDeviceType typeRequested);
 void showAllDevices(ASDeviceType typeRequested);
 

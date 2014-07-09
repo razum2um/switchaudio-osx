@@ -36,7 +36,9 @@ void showUsage(const char * appName) {
 
 int runAudioSwitch(int argc, const char * argv[]) {
 	char requestedDeviceName[256];
+       char fallbackRequestedDeviceName[256];
 	AudioDeviceID chosenDeviceID = kAudioDeviceUnknown;
+	AudioDeviceID fallbackDeviceID = kAudioDeviceUnknown;
 	ASDeviceType typeRequested = kAudioTypeUnknown;
 	int function = 0;
 
@@ -60,7 +62,13 @@ int runAudioSwitch(int argc, const char * argv[]) {
 			case 's':
 				// set the requestedDeviceName
 				function = kFunctionSetDevice;
-				strcpy(requestedDeviceName, optarg);
+				if(strlen(requestedDeviceName) == 0) {
+				    strcpy(requestedDeviceName, optarg);
+				    printf("get requested %s\n", requestedDeviceName);
+				} else {
+				    strcpy(fallbackRequestedDeviceName, optarg);
+				    printf("get fallback %s\n", fallbackRequestedDeviceName);
+				};
 				break;
 
 			case 't':
@@ -120,7 +128,13 @@ int runAudioSwitch(int argc, const char * argv[]) {
 	}
 	
 	// choose the requested audio device
-	setDevice(chosenDeviceID, typeRequested);
+	if(strlen(fallbackRequestedDeviceName) == 0) {
+		printf("normal set\n");
+		setDevice(chosenDeviceID, typeRequested);
+	} else {
+		fallbackDeviceID = getRequestedDeviceID(fallbackRequestedDeviceName, typeRequested);
+		setDeviceWithFallback(chosenDeviceID, fallbackDeviceID, typeRequested);
+	}
 	printf("%s audio device set to \"%s\"\n", deviceTypeName(typeRequested), requestedDeviceName);
 	return 0;
 	
@@ -178,13 +192,16 @@ char *deviceTypeName(ASDeviceType device_type) {
 	return "unknown";
 }
 
+char *getCurrentlySelectedDeviceName(ASDeviceType typeRequested) {
+	 AudioDeviceID currentDeviceID = kAudioDeviceUnknown;
+	 char *currentDeviceName = malloc(256 * sizeof(char));
+	 currentDeviceID = getCurrentlySelectedDeviceID(typeRequested);
+	 getDeviceName(currentDeviceID, currentDeviceName);
+	 return currentDeviceName;
+}
+
 void showCurrentlySelectedDeviceID(ASDeviceType typeRequested) {
-	AudioDeviceID currentDeviceID = kAudioDeviceUnknown;
-	char currentDeviceName[256];
-	
-	currentDeviceID = getCurrentlySelectedDeviceID(typeRequested);
-	getDeviceName(currentDeviceID, currentDeviceName);
-	printf("%s\n",currentDeviceName);
+	printf("%s\n", getCurrentlySelectedDeviceName(typeRequested));
 }
 
 
@@ -237,6 +254,34 @@ void setDevice(AudioDeviceID newDeviceID, ASDeviceType typeRequested) {
 			break;
 	}
 	
+}
+
+void setDeviceWithFallback(AudioDeviceID newDeviceID, AudioDeviceID fallbackDeviceID, ASDeviceType typeRequested) {
+	UInt32 propertySize = sizeof(UInt32);
+
+	switch(typeRequested) {
+		case kAudioTypeInput:
+			if (getCurrentlySelectedDeviceID(typeRequested) == newDeviceID) {
+				AudioHardwareSetProperty(kAudioHardwarePropertyDefaultInputDevice, propertySize, &fallbackDeviceID);
+			} else {
+				AudioHardwareSetProperty(kAudioHardwarePropertyDefaultInputDevice, propertySize, &newDeviceID);
+			}
+			break;
+		case kAudioTypeOutput:
+			if (getCurrentlySelectedDeviceID(typeRequested) == newDeviceID) {
+				AudioHardwareSetProperty(kAudioHardwarePropertyDefaultOutputDevice, propertySize, &fallbackDeviceID);
+			} else {
+				AudioHardwareSetProperty(kAudioHardwarePropertyDefaultOutputDevice, propertySize, &newDeviceID);
+			}
+			break;
+		case kAudioTypeSystemOutput:
+			if (getCurrentlySelectedDeviceID(typeRequested) == newDeviceID) {
+				AudioHardwareSetProperty(kAudioHardwarePropertyDefaultSystemOutputDevice, propertySize, &fallbackDeviceID);
+			} else {
+				AudioHardwareSetProperty(kAudioHardwarePropertyDefaultSystemOutputDevice, propertySize, &newDeviceID);
+			}
+		break;
+	}
 }
 
 void showAllDevices(ASDeviceType typeRequested) {

@@ -64,10 +64,8 @@ int runAudioSwitch(int argc, const char * argv[]) {
 				function = kFunctionSetDevice;
 				if(strlen(requestedDeviceName) == 0) {
 				    strcpy(requestedDeviceName, optarg);
-				    printf("get requested %s\n", requestedDeviceName);
 				} else {
 				    strcpy(fallbackRequestedDeviceName, optarg);
-				    printf("get fallback %s\n", fallbackRequestedDeviceName);
 				};
 				break;
 
